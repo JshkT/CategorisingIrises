@@ -29,7 +29,6 @@ from sklearn.svm import SVC
 
 
 def import_data():
-
     # Load dataset
     url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/iris.csv"
     names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
@@ -52,7 +51,7 @@ def display_data(dataset):
 
     # Univariate Plots
     # box and whisker plots
-    dataset.plot(kind='box', subplots=True, layout=(2,2),
+    dataset.plot(kind='box', subplots=True, layout=(2, 2),
                  sharex=False, sharey=False)
     pyplot.show()
 
@@ -65,14 +64,8 @@ def display_data(dataset):
     scatter_matrix(dataset)
     pyplot.show()
 
-def process_data(dataset):
-    # Split-out validation dataset
-    array = dataset.values
-    X = array[:, 0:4]
-    y = array[:, 4]
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, y, test_size=0.20, random_state=1)
 
+def evaluate_models(dataset, X_train, Y_train):
     # Spot check algorithms
     # mixture of simple linear (LR and LDA), nonlinear (KNN, CART, NB and SVM) algorithms.
     #   Logistic Regression (LR)
@@ -103,11 +96,38 @@ def process_data(dataset):
     pyplot.show()
 
 
+def get_predictions(model, X_train, Y_train, X_validation):
+    model.fit(X_train, Y_train)
+    return model.predict(X_validation)
+
+# Evaluate predictions
+def evaluate_predictions(predictions, Y_validation):
+    print('Accuracy Score: %f' % accuracy_score(Y_validation, predictions))
+    print('Confusion Matrix: \n%s' % confusion_matrix(Y_validation, predictions))
+    print('Classification Report: \n%s' % classification_report(Y_validation, predictions))
+
+
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    versionChecker.check_version()
+def main():
+    # versionChecker.check_version()
     dataset = import_data()
     # display_data(dataset)
-    process_data(dataset)
+
+    # Split-out validation dataset
+    array = dataset.values
+    X = array[:, 0:4]
+    y = array[:, 4]
+    X_train, X_validation, Y_train, Y_validation = \
+        train_test_split(X, y, test_size=0.20, random_state=1)
+
+    # evaluate_models(dataset, X_train, Y_train)
+
+    model = SVC(gamma='auto')
+    predictions = get_predictions(model, X_train, Y_train, X_validation)
+
+    evaluate_predictions(predictions, Y_validation)
 
     print("End process")
+
+
+main()
